@@ -4,12 +4,12 @@
 # EMail: chh986212@126.com
 # Git: https://github.com/DiabloCC
 
-class movie():
+class movie(object):
   '''
   The movie class describes a movie in this demo project.
   Properties:
     1. title
-    2. post_url
+    2. poster_url
     3. trailer_url
     4. other_info
   Methods:
@@ -18,17 +18,20 @@ class movie():
   
   def __init__(self, title, post, trailer):
     self.title = title
-    self.post_url = post
+    self.poster_url = post
     self.trailer_url = trailer
-    self.other_info = {'direcor':'', 'actors':'', 'year':'', 'story_brief':'', 'country':''}
-  def add_info(field, value):
-    if not self.other_info.get(field):
-      self.other_info[field] = value
-    else:
-      return "couldn't find the info field named '%s'." % (field)
+    self.other_info = {'director':'', 'actors':'', 'year':'', 'story_brief':'', 'country':''}
+  
+  def add_info(self, **kw):
+    for key,value in kw.items():
+      if key in self.other_info:
+        self.other_info[key] = value
+      else:
+        # field not found
+        return -1
 
 
-class movie_list():
+class movie_list(object):
   '''
   The movie_list class maintains a list of movies.
   Properties:
@@ -44,13 +47,13 @@ class movie_list():
     # index of movie titles
     self.__index = {}
     
-  def movies():
+  def movies(self):
     '''
     Make the hidden list visible.
     '''
-    return __movies
+    return self.__movies
 
-  def add_movie(movie):
+  def add_movie(self, movie):
     '''
     Append new movie object to list
     '''
@@ -60,15 +63,15 @@ class movie_list():
       return 0
     else:
       # already in list
-      return -1
+      return -2
     
-  def __locate(title):
+  def __locate(self, title):
     if title in self.__index:
       return self.__index[title]
     else:
-      return -2
+      return -3
 
-  def remove_movie(title):
+  def remove_movie(self, title):
     id = __locate(title)
     if id < 0:
       # movie not found
@@ -81,9 +84,16 @@ class movie_list():
         if idx > id:
            self.__index[t] = idx - 1
 
-  def edit_movie(title, field, value):
+  def edit_movie(self, title, field, value):
     id = __locate(title)
     if id < 0:
-      return -2
+      return id
     else:
-      self.__movies[id]
+      if hasattr(self.__movies[id], field):
+        setattr(self.__movies[id], field, value)
+      else:
+        if field in self.__movies[id].other_info:
+          self.__movies[id].other_info[field] = value
+        else:
+          # field not found
+          return -4
