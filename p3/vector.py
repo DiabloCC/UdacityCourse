@@ -1,24 +1,29 @@
+import math
+
 class Vector(object):
     def __init__(self, coordinates):
-        try:
-            if not coordinates:
-                raise ValueError
-            self.coordinates = tuple(coordinates)
-            self.dimension = len(coordinates)
+      try:
+        if not coordinates:
+            raise ValueError
+        self.coordinates = tuple(coordinates)
+        self.dimension = len(coordinates)
 
-        except ValueError:
-            raise ValueError('The coordinates must be nonempty')
+      except ValueError:
+        raise ValueError('The coordinates must be nonempty')
 
-        except TypeError:
-            raise TypeError('The coordinates must be an iterable')
+      except TypeError:
+        raise TypeError('The coordinates must be an iterable')
 
 
     def __str__(self):
-        return 'Vector: {}'.format(self.coordinates)
+      return 'Vector: {}'.format(self.coordinates)
 
 
     def __eq__(self, v):
-        return self.coordinates == v.coordinates
+      return self.coordinates == v.coordinates
+    
+    def iszero(self):
+      return self.coordinates == tuple([0] * self.dimension)
         
     def plus(self, v):
       if isinstance(v, Vector):
@@ -39,7 +44,39 @@ class Vector(object):
         raise TypeError('not a Vector.')
   
     def scalar_multiply(self, scalar):
-      if not (isinstance(scalar, int) or isinstance(scalar, float)):
+      if not (isinstance(scalar, (int,float))):
         raise TypeError('{0} is not a number'.format(scalar))
       else:
         return Vector([scalar * x for x in self.coordinates])
+        
+    def magnitude(self):
+      if self.iszero():
+        return 0
+      else:
+        return math.sqrt(sum([x**2 for x in self.coordinates]))
+        
+    def normalize(self):
+      if self.iszero():
+        raise ValueError("Can't normalize a zero vector.")
+      else:
+        return self.scalar_multiply(1.0/self.magnitude())
+        
+    def dot_product(self, v):
+      if not isinstance(v, Vector):
+        raise TypeError('not a Vector')
+      else:
+        if self.dimension != v.dimension:
+          raise ValueError('dimension not match.')
+        else:
+          return sum([x*y for x,y in zip(self.coordinates,v.coordinates)])            
+    
+    def inner_angle(self, v, in_degree=False):
+      if not isinstance(v, Vector):
+        raise TypeError('not a Vector')
+      if self.dimension != v.dimension:
+        raise ValueError('dimension not match.')
+      ret = math.acos(self.normalize().dot_product(v.normalize()))
+      if in_degree:
+        return ret/math.pi*180
+      else:
+        return ret
