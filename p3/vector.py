@@ -114,5 +114,9 @@ class Vector(object):
   def project(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
-    return self.dot_product(v.normalize()).dot_product(v.normalize())
+    return v.normalize().scalar_multiply(self.dot_product(v.normalize()))
 
+  def orthogon(self, v):
+    if not isinstance(v, Vector):
+      raise TypeError('not a Vector')
+    return self.minus(self.project(v))
