@@ -110,3 +110,9 @@ class Vector(object):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     return abs(self.dot_product(v)) < tolerance
+
+  def project(self, v):
+    if not isinstance(v, Vector):
+      raise TypeError('not a Vector')
+    return self.dot_product(v.normalize()).dot_product(v.normalize())
+
