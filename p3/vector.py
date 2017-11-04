@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
 from math import acos, pi, sqrt
 from decimal import Decimal, getcontext
+
+getcontext().prec = 30
 
 class Vector(object):
   def __init__(self, coordinates):
@@ -42,7 +46,7 @@ class Vector(object):
     else:
       raise TypeError('not a Vector.')
 
-  def scalar_multiply(self, scalar):
+  def time_scalar(self, scalar):
     try:
       return Vector([Decimal(scalar) * x for x in self.coordinates])
     except Exception:
@@ -55,9 +59,9 @@ class Vector(object):
     if self.iszero():
       raise ValueError("Can't normalize a zero vector.")
     else:
-      return self.scalar_multiply(Decimal(1.0)/self.magnitude())
+      return self.time_scalar(Decimal(1.0)/self.magnitude())
       
-  def dot_product(self, v):
+  def dot(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     else:
@@ -66,12 +70,12 @@ class Vector(object):
       else:
         return sum([x*y for x,y in zip(self.coordinates,v.coordinates)])            
   
-  def inner_angle(self, v, in_degree=False, tolerance=1e-10):
+  def angle_with(self, v, in_degree=False, tolerance=1e-10):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     if self.dimension != v.dimension:
       raise ValueError('dimension not match.')
-    d = self.normalize().dot_product(v.normalize())
+    d = self.normalize().dot(v.normalize())
     if abs(abs(d)-1) < tolerance:
       d = 1 if d>0 else -1
     if abs(d)<tolerance:
@@ -81,7 +85,7 @@ class Vector(object):
     else:
       return acos(d)
       
-  def parallel(self, v):
+  def is_parallel_to(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     if self.iszero() or v.iszero():
@@ -91,32 +95,57 @@ class Vector(object):
     return (v1.minus(v2).iszero() or 
             v1.plus(v2).iszero())
     
-  def parallel2(self, v):
+  def is_parallel_to2(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     if self.iszero() or v.iszero():
       return True
-    return self.scalar_multiply(v.coordinates[0] / self.coordinates[0]).minus(v).iszero()
+    return self.time_scalar(v.coordinates[0] / self.coordinates[0]).minus(v).iszero()
     
-  def parallel3(self, v):
+  def is_parallel_to3(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     return (self.iszero() or 
             v.iszero() or
-            self.inner_angle(v) == 0 or
-            self.inner_angle(v) == pi)
+            self.angle_with(v) == 0 or
+            self.angle_with(v) == pi)
     
-  def orthogonal(self, v, tolerance=1e-10):
+  def is_orthogonal_to(self, v, tolerance=1e-10):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
-    return abs(self.dot_product(v)) < tolerance
+    return abs(self.dot(v)) < tolerance
 
-  def project(self, v):
+  def component_project_to(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
-    return v.normalize().scalar_multiply(self.dot_product(v.normalize()))
+    return v.normalize().time_scalar(self.dot(v.normalize()))
 
-  def orthogon(self, v):
+  def component_orthogonal_to(self, v):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     return self.minus(self.project(v))
+    
+  def cross(self, v):
+    if not isinstance(v, Vector):
+      raise TypeError('not a Vector')
+    r = []
+    if ((self.dimension != v.dimension) or
+        (self.dimension == 1) or
+        (v.dimension == 1)):
+      raise ValueError('dimensions not match')
+    if (self.dimension == v.dimension == 2):
+      z1 = z2 = Decimal(0.0)
+    if (self.dimension == v.dimension == 3):
+      z1 = self.coordinates[2]
+      z2 = v.coordinates[2]
+    r.append(self.coordinates[1]*z2 - v.coordinates[1]*z1)
+    r.append(v.coordinates[0]*z1 - self.coordinates[0]*z2)
+    r.append(self.coordinates[0]*v.coordinates[1] - v.coordinates[0]*self.coordinates[1])
+    return Vector(r)
+    
+    
+  def parallelogram_area(self, v):
+    if not isinstance(v, Vector):
+      raise TypeError('not a Vector')
+    return self.cross(v).magnitude()
+      
