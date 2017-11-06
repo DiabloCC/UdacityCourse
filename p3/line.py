@@ -104,7 +104,10 @@ class Line(object):
     return False
     
   def __eq__(self, l):
-    pass
+    if (self.is_parallel_to(l) and
+        self.basepoint.minus(l.basepoint).is_orthogonal_to(self.normal_vector)):
+      return True
+    return False
     
   def intersection_point(self, l):
     pass
