@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from vector import *
+from line import *
 
 # vector
 
@@ -55,9 +56,27 @@ def vector_ex():
   # print Vector([3.009, -6.172, 3.692, -2.510]).component_orthogonal_to(Vector([6.404, -9.144, 2.759, 8.718]))
 
   # 14
-  print Vector([8.462,7.893,-8.187]).cross(Vector([6.984,-5.975,4.778]))
-  print Vector([-8.987,-9.838,5.031]).parallelogram_area(Vector([-4.268,-1.861,-8.866]))
-  print Vector([1.500,9.547,3.691]).parallelogram_area(Vector([-6.007,0.124,5.772]))/2
+  # print Vector([8.462,7.893,-8.187]).cross(Vector([6.984,-5.975,4.778]))
+  # print Vector([-8.987,-9.838,5.031]).parallelogram_area(Vector([-4.268,-1.861,-8.866]))
+  # print Vector([1.500,9.547,3.691]).parallelogram_area(Vector([-6.007,0.124,5.772]))/2
+  pass
+  
+def line_ex():
+  # 4
+  print Line(Vector([4.046,2.836]),1.210).is_parallel_to(Line(Vector([10.115,7.090]),3.025))
+  print Line(Vector([10.115,7.090]),3.025).direction_vector() 
+  print Line(Vector([4.046,2.836]),1.210) == Line(Vector([10.115,7.090]),3.025)
+  print Line(Vector([4.046,2.836]),1.210).intersection_point(Line(Vector([10.115,7.090]),3.025))
+  print "-"*10
+  print Line(Vector([7.204,3.182]),8.680).is_parallel_to(Line(Vector([8.172,4.114]),9.883))
+  print Line(Vector([7.204,3.182]),8.680) == Line(Vector([8.172,4.114]),9.883)
+  print Line(Vector([7.204,3.182]),8.680).intersection_point(Line(Vector([8.172,4.114]),9.883))
+  print "-"*10
+  print Line(Vector([1.182,5.562]),6.744).is_parallel_to(Line(Vector([1.773,8.343]),9.525))
+  print Line(Vector([1.182,5.562]),6.744) == Line(Vector([1.773,8.343]),9.525)
+  print Line(Vector([1.182,5.562]),6.744).intersection_point(Line(Vector([1.773,8.343]),9.525))
+  print "-"*10
   
 if __name__ == '__main__':
-  vector_ex()
+  # vector_ex()
+  line_ex()

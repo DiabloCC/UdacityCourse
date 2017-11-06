@@ -28,12 +28,12 @@ class Line(object):
 
   def set_basepoint(self):
     try:
-      n = self.normal_vector
+      n = self.normal_vector.coordinates
       c = self.constant_term
       basepoint_coords = ['0']*self.dimension
 
-      initial_index = Line.first_nonzero_index(n.coordinates)
-      initial_coefficient = n.coordinates[initial_index]
+      initial_index = Line.first_nonzero_index(n)
+      initial_coefficient = n[initial_index]
 
       basepoint_coords[initial_index] = c/initial_coefficient
       self.basepoint = Vector(basepoint_coords)
@@ -69,7 +69,7 @@ class Line(object):
 
       return output
 
-    n = self.normal_vector
+    n = self.normal_vector.coordinates
 
     try:
       initial_index = Line.first_nonzero_index(n)
@@ -108,9 +108,18 @@ class Line(object):
         self.basepoint.minus(l.basepoint).is_orthogonal_to(self.normal_vector)):
       return True
     return False
+  
+  def direction_vector(self):
+    n = self.normal_vector.coordinates
+    return Vector([x*((-1)**k) for k,x in enumerate(reversed(n))])
     
   def intersection_point(self, l):
-    pass
+    denominator = self.normal_vector.dot(l.direction_vector())
+    x_numerator = Vector([self.normal_vector.coordinates[1],self.constant_term]).dot(Vector([l.constant_term,
+                    -1*l.normal_vector.coordinates[1]]))*(-1)
+    y_numerator = Vector([self.normal_vector.coordinates[0],self.constant_term]).dot(Vector([l.constant_term,
+                    -1*l.normal_vector.coordinates[0]]))
+    return Vector([x_numerator/denominator, y_numerator/denominator])
 
 
 class MyDecimal(Decimal):
