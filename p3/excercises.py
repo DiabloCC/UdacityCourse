@@ -64,7 +64,7 @@ def vector_ex():
 def line_ex():
   # 4
   print Line(Vector([4.046,2.836]),1.210).is_parallel_to(Line(Vector([10.115,7.090]),3.025))
-  print Line(Vector([10.115,7.090]),3.025).direction_vector() 
+  # print Line(Vector([10.115,7.090]),3.025).direction_vector() 
   print Line(Vector([4.046,2.836]),1.210) == Line(Vector([10.115,7.090]),3.025)
   print Line(Vector([4.046,2.836]),1.210).intersection_point(Line(Vector([10.115,7.090]),3.025))
   print "-"*10

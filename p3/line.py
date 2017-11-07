@@ -98,27 +98,45 @@ class Line(object):
         return k
     raise Exception(Line.NO_NONZERO_ELTS_FOUND_MSG)
       
-  def is_parallel_to(self, l):
-    if self.normal_vector.is_parallel_to(l.normal_vector):
-      return True
-    return False
+  def is_parallel_to(self, ell):
+    return self.normal_vector.is_parallel_to(ell.normal_vector)
     
-  def __eq__(self, l):
-    if (self.is_parallel_to(l) and
-        self.basepoint.minus(l.basepoint).is_orthogonal_to(self.normal_vector)):
-      return True
-    return False
+  def __eq__(self, ell):
+    if self.normal_vector.iszero():
+      if not ell.normal_vector.iszero():
+        return False
+      else:
+        diff = self.constant_term - ell.constant_term
+        return MyDecimal(diff).is_near_zero()
+    elif ell.normal_vector.iszero():
+      return False
+      
+    return (self.is_parallel_to(ell) and 
+            self.basepoint.minus(ell.basepoint).is_orthogonal_to(self.normal_vector))
   
   def direction_vector(self):
     n = self.normal_vector.coordinates
     return Vector([x*((-1)**k) for k,x in enumerate(reversed(n))])
     
-  def intersection_point(self, l):
-    denominator = self.normal_vector.dot(l.direction_vector())
-    x_numerator = Vector([self.normal_vector.coordinates[1],self.constant_term]).dot(Vector([l.constant_term,
-                    -1*l.normal_vector.coordinates[1]]))*(-1)
-    y_numerator = Vector([self.normal_vector.coordinates[0],self.constant_term]).dot(Vector([l.constant_term,
-                    -1*l.normal_vector.coordinates[0]]))
+  def intersection_point(self, ell):
+    A, B = self.normal_vector.coordinates
+    C, D = ell.normal_vector.coordinates
+    k1 = self.constant_term
+    k2 = ell.constant_term
+    
+    denominator = A*D - B*C
+    if MyDecimal(denominator).is_near_zero():
+      if self == ell:
+        return self
+      return None
+    
+    x_numerator = D*k1 - B*k2
+    y_numerator = A*k2 - C*k1
+    if MyDecimal(x_numerator).is_near_zero():
+      x_numerator = Decimal(0.0)
+    if MyDecimal(y_numerator).is_near_zero():
+      y_numerator = Decimal(0.0)
+      
     return Vector([x_numerator/denominator, y_numerator/denominator])
 
 
