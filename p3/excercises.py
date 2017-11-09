@@ -2,6 +2,7 @@
 
 from vector import *
 from line import *
+from plane import *
 
 # vector
 
@@ -77,6 +78,29 @@ def line_ex():
   print Line(Vector([1.182,5.562]),6.744).intersection_point(Line(Vector([1.773,8.343]),9.525))
   print "-"*10
   
+def plane_ex():
+  # 7
+  a = Plane(Vector([-0.412,3.806,0.728]),-3.460) 
+  b = Plane(Vector([1.030,-9.515,-1.820]),8.650)
+  print a == b
+  print a.is_parallel_to(b) and not (a == b)
+  print not a.is_parallel_to(b)
+  print "-"*10
+  a = Plane(Vector([2.611,5.528,0.283]),4.600) 
+  b = Plane(Vector([7.715,8.306,5.342]),3.760)
+  print a == b
+  print a.is_parallel_to(b) and not (a == b)
+  print not a.is_parallel_to(b)
+  print "-"*10
+  a = Plane(Vector([-7.926,8.625,-7.212]),-7.952) 
+  b = Plane(Vector([-2.642,2.875,-2.404]),-2.443)
+  print a == b
+  print a.is_parallel_to(b) and not (a == b)
+  print not a.is_parallel_to(b)
+  print "-"*10
+  
+  
 if __name__ == '__main__':
   # vector_ex()
-  line_ex()
+  # line_ex()
+  plane_ex()

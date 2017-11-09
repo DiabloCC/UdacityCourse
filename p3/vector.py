@@ -6,6 +6,8 @@ from decimal import Decimal, getcontext
 getcontext().prec = 30
 
 class Vector(object):
+  NO_NONZERO_ELTS_FOUND_MSG = 'No nonzero elements found'
+  
   def __init__(self, coordinates):
     try:
       if not coordinates:
@@ -75,10 +77,10 @@ class Vector(object):
       raise TypeError('not a Vector')
     if self.dimension != v.dimension:
       raise ValueError('dimension not match.')
-    d = self.normalize().dot(v.normalize())
+    d = self.dot(v)/(self.magnitude()*v.magnitude())
     if abs(abs(d)-1) < tolerance:
       d = 1 if d>0 else -1
-    if abs(d)<tolerance:
+    elif abs(d)<tolerance:
       d = 0
     if in_degree:
       return acos(d)/pi*180
@@ -100,7 +102,13 @@ class Vector(object):
       raise TypeError('not a Vector')
     if self.iszero() or v.iszero():
       return True
-    return self.time_scalar(v.coordinates[0] / self.coordinates[0]).minus(v).iszero()
+    n = Vector.first_nonzero_index(self.coordinates)
+    if (v.coordinates[n] == 0):
+      return False
+    if abs(self.coordinates[n])<=abs(v.coordinates[n]):
+      return self.time_scalar(v.coordinates[n] / self.coordinates[n]).minus(v).iszero()
+    else:
+      return v.time_scalar(self.coordinates[n] / v.coordinates[n]).minus(self).iszero()
     
   def is_parallel_to3(self, v):
     if not isinstance(v, Vector):
@@ -148,4 +156,14 @@ class Vector(object):
     if not isinstance(v, Vector):
       raise TypeError('not a Vector')
     return self.cross(v).magnitude()
+    
+  @staticmethod
+  def first_nonzero_index(iterable):
+    for k, item in enumerate(iterable):
+      if not MyDecimal(item).is_near_zero():
+        return k
+    raise Exception(Vector.NO_NONZERO_ELTS_FOUND_MSG)
       
+class MyDecimal(Decimal):
+  def is_near_zero(self, eps=1e-10):
+    return abs(self) < eps
