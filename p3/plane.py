@@ -114,6 +114,22 @@ class Plane(object):
     return (self.is_parallel_to(p) and 
             self.basepoint.minus(p.basepoint).is_orthogonal_to(self.normal_vector))
   
+  def gaussian(self, p1, p2):
+    n = [self.normal_vector, p1.normal_vector, p2.normal_vector]
+    t = [self.constant_term, p1.constant_term, p2.constant_term]
+    z = sorted([[first_nonzero_index(x[0])+list(x)] for x in zip(n,t)])
+    for x in xrange(len(z)-1):
+      i_1, n_1, k_1 = z[x]
+      i_2, n_2, k_2 = z[x+1]
+      if v_1.coordinates[i_2] != Decimal(0):
+        c = n_1.coordinates[i_2] / n_2.coordinates[i_2]
+        z[x+1] = [i_1 if i_1<i_2 else i_2+1,
+                  n_1.minus(n_2.time_scalar(c)),
+                  k_1-k_2*c]
+      #z = sorted(z)
+
+    
+    
 class MyDecimal(Decimal):
   def is_near_zero(self, eps=1e-10):
     return abs(self) < eps
