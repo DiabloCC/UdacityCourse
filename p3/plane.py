@@ -69,7 +69,7 @@ class Plane(object):
 
       return output
 
-    n = self.normal_vector
+    n = self.normal_vector.coordinates
 
     try:
       initial_index = Plane.first_nonzero_index(n)
@@ -119,6 +119,8 @@ class Plane(object):
     t = [self.constant_term, p1.constant_term, p2.constant_term]
     z = sorted([[first_nonzero_index(x[0])+list(x)] for x in zip(n,t)])
     for x in xrange(len(z)-1):
+      if z[x][0]<z[x+1][0]:
+        z[x+1], z[x] = z[x], z[x+1]
       i_1, n_1, k_1 = z[x]
       i_2, n_2, k_2 = z[x+1]
       if v_1.coordinates[i_2] != Decimal(0):
