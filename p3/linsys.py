@@ -92,7 +92,6 @@ class LinearSystem(object):
     
     return tf
     
- 
   def indices_of_first_nonzero_terms_in_each_row(self):
     num_equations = len(self)
     num_variables = self.dimension
@@ -110,14 +109,50 @@ class LinearSystem(object):
 
     return indices
 
-
+  def compute_solution(self):
+    try
+      return self.do_gaussian_elimination()
+    except Exception as e:
+      if (str(e) == self.NO_SOLUTIONS_MSG or
+          str(e) == self.INF_SOLUTIONS_MSG):
+          return str(e)
+      else:
+        raise e
+        
+  def do_gaussian_elimination(self):
+    rref = self.compute_rref()
+    
+    rref.raise_exception_if_contradictory_equation()
+    rref.raise_exception_if_too_few_pivots()
+    
+    num_variables = rref.dimension
+    solution_coordinates = [x.constant_term for x in rref.planes]
+    return Vector(solution_coordinates)
+    
+  def raise_exception_if_contradictory_equation(self):
+    for p in self.planes:
+      try
+        p.first_nonzero_index(p.normal_vector)
+      except Exception as e:
+        if str(e) == 'No nonezero elements found':
+          constant_term = MyDecimal(p.constant_term)
+          if not constant_term.is_near_zero():
+            raise Exception(self.NO_SOLUTIONS_MSG)
+        else:
+          raise e
+  
+  def raise_exception_if_too_few_pivots(self):
+    pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+    num_pivots = len(pivot_indices) - pivot_indices.count(-1)
+    num_variables = rf.dimension
+    if num_pivots<num_variables:
+      raise Excetion(self.INF_SOLUTIONS_MSG)
+  
   def __len__(self):
     return len(self.planes)
 
-
   def __getitem__(self, i):
     return self.planes[i]
-
 
   def __setitem__(self, i, x):
     try:
@@ -127,196 +162,14 @@ class LinearSystem(object):
     except AssertionError:
       raise Exception(self.ALL_PLANES_MUST_BE_IN_SAME_DIM_MSG)
 
-
   def __str__(self):
     ret = 'Linear System:\n'
     temp = ['Equation {}: {}'.format(i+1,p) for i,p in enumerate(self.planes)]
     ret += '\n'.join(temp)
     return ret
 
-
 class MyDecimal(Decimal):
   def is_near_zero(self, eps=1e-10):
     return abs(self) < eps
-
-
-
-
-
-
-# print MyDecimal('1e-9').is_near_zero()
-# print MyDecimal('1e-11').is_near_zero()
-
-def test_row_func():
-  p0 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  p1 = Plane(normal_vector=Vector(['0','1','0']), constant_term='2')
-  p2 = Plane(normal_vector=Vector(['1','1','-1']), constant_term='3')
-  p3 = Plane(normal_vector=Vector(['1','0','-2']), constant_term='2')
-
-  s = LinearSystem([p0,p1,p2,p3])
-  print s.indices_of_first_nonzero_terms_in_each_row()
-  print '{},{},{},{}'.format(s[0],s[1],s[2],s[3])
-  print len(s)
-  print s
-  print "-"*20
- 
-  s.swap_rows(0,1)
-  if not (s[0]==p1 and s[1]==p0 and s[2]==p2 and s[3]==p3):
-    print 'test case 1 failed'
-  else:
-    print 'test case 1 success'
-    
-  s.swap_rows(1,3)
-  if not (s[0] == p1 and s[1] == p3 and s[2] == p2 and s[3] == p0):
-    print 'test case 2 failed'
-  else:
-    print 'test case 2 success'
-
-  s.swap_rows(3,1)
-  if not (s[0] == p1 and s[1] == p0 and s[2] == p2 and s[3] == p3):
-    print 'test case 3 failed'
-  else:
-    print 'test case 3 success'
-
-  s.multiply_coefficient_and_row(1,0)
-  if not (s[0] == p1 and s[1] == p0 and s[2] == p2 and s[3] == p3):
-    print 'test case 4 failed'
-  else:
-    print 'test case 4 success'
-
-  s.multiply_coefficient_and_row(-1,2)
-  if not (s[0] == p1 and
-          s[1] == p0 and
-          s[2] == Plane(normal_vector=Vector(['-1','-1','1']), constant_term='-3') and
-          s[3] == p3):
-    print 'test case 5 failed'
-  else:
-    print 'test case 5 success'
-
-  s.multiply_coefficient_and_row(10,1)
-  if not (s[0] == p1 and
-          s[1] == Plane(normal_vector=Vector(['10','10','10']), constant_term='10') and
-          s[2] == Plane(normal_vector=Vector(['-1','-1','1']), constant_term='-3') and
-          s[3] == p3):
-    print 'test case 6 failed'
-  else:
-    print 'test case 6 success'
-
-  s.add_multiple_times_row_to_row(0,0,1)
-  if not (s[0] == p1 and
-          s[1] == Plane(normal_vector=Vector(['10','10','10']), constant_term='10') and
-          s[2] == Plane(normal_vector=Vector(['-1','-1','1']), constant_term='-3') and
-          s[3] == p3):
-    print 'test case 7 failed'
-  else:
-    print 'test case 7 success'
-
-  s.add_multiple_times_row_to_row(1,0,1)
-  if not (s[0] == p1 and
-          s[1] == Plane(normal_vector=Vector(['10','11','10']), constant_term='12') and
-          s[2] == Plane(normal_vector=Vector(['-1','-1','1']), constant_term='-3') and
-          s[3] == p3):
-    print 'test case 8 failed'
-  else:
-    print 'test case 8 success'
-
-  s.add_multiple_times_row_to_row(-1,1,0)
-  if not (s[0] == Plane(normal_vector=Vector(['-10','-10','-10']), constant_term='-10') and
-          s[1] == Plane(normal_vector=Vector(['10','11','10']), constant_term='12') and
-          s[2] == Plane(normal_vector=Vector(['-1','-1','1']), constant_term='-3') and
-          s[3] == p3):
-    print 'test case 9 failed'
-  else:
-    print 'test case 9 success'
-    
-def test_compute_triangle():
-  # p1 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  # p2 = Plane(normal_vector=Vector(['0','1','1']), constant_term='2')
-  # s = LinearSystem([p1,p2])
-  # print s
-  # print "-"*20
-  # 
-  # t = s.compute_triangular_form()
-  # print t
-  # if not (t[0] == p1 and
-  #   t[1] == p2):
-  #   print 'test case 1 failed'
-
-  # p1 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  # p2 = Plane(normal_vector=Vector(['1','1','1']), constant_term='2')
-  # s = LinearSystem([p1,p2])
-  # t = s.compute_triangular_form()
-  # print t
-  # if not (t[0] == p1 and
-  #   t[1] == Plane(constant_term='1')):
-  #   print 'test case 2 failed'
-  # 
-  # p1 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  # p2 = Plane(normal_vector=Vector(['0','1','0']), constant_term='2')
-  # p3 = Plane(normal_vector=Vector(['1','1','-1']), constant_term='3')
-  # p4 = Plane(normal_vector=Vector(['1','0','-2']), constant_term='2')
-  # s = LinearSystem([p1,p2,p3,p4])
-  # t = s.compute_triangular_form()
-  # print t
-  # if not (t[0] == p1 and
-  #   t[1] == p2 and
-  #   t[2] == Plane(normal_vector=Vector(['0','0','-2']), constant_term='2') and
-  #   t[3] == Plane()):
-  #   print 'test case 3 failed'
-  # 
-  p1 = Plane(normal_vector=Vector(['0','1','1']), constant_term='1')
-  p2 = Plane(normal_vector=Vector(['1','-1','1']), constant_term='2')
-  p3 = Plane(normal_vector=Vector(['1','2','-5']), constant_term='3')
-  s = LinearSystem([p1,p2,p3])
-  t = s.compute_triangular_form()
-  print t
-  if not (t[0] == Plane(normal_vector=Vector(['1','-1','1']), constant_term='2') and
-    t[1] == Plane(normal_vector=Vector(['0','1','1']), constant_term='1') and
-    t[2] == Plane(normal_vector=Vector(['0','0','-9']), constant_term='-2')):
-    print 'test case 4 failed'
-  
-def test_reef():
-  # p1 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  # p2 = Plane(normal_vector=Vector(['0','1','1']), constant_term='2')
-  # s = LinearSystem([p1,p2])
-  # r = s.compute_rref()
-  # if not (r[0] == Plane(normal_vector=Vector(['1','0','0']), constant_term='-1') and
-  #     r[1] == p2):
-  #   print 'test case 1 failed'
-
-  # p1 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  # p2 = Plane(normal_vector=Vector(['1','1','1']), constant_term='2')
-  # s = LinearSystem([p1,p2])
-  # r = s.compute_rref()
-  # if not (r[0] == p1 and
-  #     r[1] == Plane(constant_term='1')):
-  #   print 'test case 2 failed'
-  # 
-  # p1 = Plane(normal_vector=Vector(['1','1','1']), constant_term='1')
-  # p2 = Plane(normal_vector=Vector(['0','1','0']), constant_term='2')
-  # p3 = Plane(normal_vector=Vector(['1','1','-1']), constant_term='3')
-  # p4 = Plane(normal_vector=Vector(['1','0','-2']), constant_term='2')
-  # s = LinearSystem([p1,p2,p3,p4])
-  # r = s.compute_rref()
-  # if not (r[0] == Plane(normal_vector=Vector(['1','0','0']), constant_term='0') and
-  #     r[1] == p2 and
-  #     r[2] == Plane(normal_vector=Vector(['0','0','-2']), constant_term='2') and
-  #     r[3] == Plane()):
-  #   print 'test case 3 failed'
-  # 
-  p1 = Plane(normal_vector=Vector(['0','1','1']), constant_term='1')
-  p2 = Plane(normal_vector=Vector(['1','-1','1']), constant_term='2')
-  p3 = Plane(normal_vector=Vector(['1','2','-5']), constant_term='3')
-  s = LinearSystem([p1,p2,p3])
-  r = s.compute_rref()
-  if not (r[0] == Plane(normal_vector=Vector(['1','0','0']), constant_term=Decimal('23')/Decimal('9')) and
-      r[1] == Plane(normal_vector=Vector(['0','1','0']), constant_term=Decimal('7')/Decimal('9')) and
-      r[2] == Plane(normal_vector=Vector(['0','0','1']), constant_term=Decimal('2')/Decimal('9'))):
-    print 'test case 4 failed'
-    
-if __name__=="__main__":
-  # test_row_func()
-  # test_compute_triangle()
-  test_reef()
 
 
