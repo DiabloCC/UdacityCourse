@@ -163,6 +163,13 @@ class Vector(object):
       if not MyDecimal(item).is_near_zero():
         return k
     raise Exception(Vector.NO_NONZERO_ELTS_FOUND_MSG)
+    
+  def __getitem__(self, i):
+    return self.coordinates[i]
+    
+  def __setitem__(self, i, x):
+    self.coordinates[i] = x
+
       
 class MyDecimal(Decimal):
   def is_near_zero(self, eps=1e-10):
