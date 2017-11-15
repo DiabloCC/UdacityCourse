@@ -110,7 +110,7 @@ class LinearSystem(object):
     return indices
 
   def compute_solution(self):
-    try
+    try:
       return self.do_gaussian_elimination()
     except Exception as e:
       if (str(e) == self.NO_SOLUTIONS_MSG or
@@ -123,7 +123,10 @@ class LinearSystem(object):
     rref = self.compute_rref()
     
     rref.raise_exception_if_contradictory_equation()
-    rref.raise_exception_if_too_few_pivots()
+    # rref.raise_exception_if_too_few_pivots()
+    if rref.if_too_few_pivots():
+      # raise Excetion(self.INF_SOLUTIONS_MSG)
+      return rref.parametrize()
     
     num_variables = rref.dimension
     solution_coordinates = [x.constant_term for x in rref.planes]
@@ -131,7 +134,7 @@ class LinearSystem(object):
     
   def raise_exception_if_contradictory_equation(self):
     for p in self.planes:
-      try
+      try:
         p.first_nonzero_index(p.normal_vector)
       except Exception as e:
         if str(e) == 'No nonezero elements found':
@@ -141,12 +144,40 @@ class LinearSystem(object):
         else:
           raise e
   
-  def raise_exception_if_too_few_pivots(self):
+  def if_too_few_pivots(self):
     pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
     num_pivots = len(pivot_indices) - pivot_indices.count(-1)
-    num_variables = rf.dimension
+    num_variables = self.dimension
     if num_pivots<num_variables:
-      raise Excetion(self.INF_SOLUTIONS_MSG)
+      return True
+    return False
+      
+  def parametrize(self):
+    print '*'*10
+    print self
+    print '+'*5
+    pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+    num_variables = self.dimension
+    num_equations = len(self)
+    basepoint = [0]*self.dimension
+    direction_vectors = []
+    
+    for i in range(pivot_indices[0]+1,num_variables):
+      direction_vector = [0]*num_variables
+      for j in range(num_equations):
+        if pivot_indices[j]<0:
+          break
+        c = self[j].normal_vector[i]
+        #if MyDecimal(c).is_near_zero()
+        direction_vector[j] = Decimal(0) if MyDecimal(c).is_near_zero() else c
+        basepoint[j] = self[j].constant_term
+      print 'direction_vector=',direction_vector
+      print 'basepoint=',basepoint
+      print 'direction_vectors=',direction_vectors
+      direction_vectors.append(Vector(direction_vector).time_scalar(-1))
+      print '******'
+    return Parametrization(Vector(basepoint), direction_vectors)  
+      
   
   def __len__(self):
     return len(self.planes)
@@ -172,4 +203,47 @@ class MyDecimal(Decimal):
   def is_near_zero(self, eps=1e-10):
     return abs(self) < eps
 
+class Parametrization(object):
+  BASEPT_AND_DIR_VECTORS_MUST_BE_IN_SAME_DIM_MSG = (
+    'The basepoint and direction vectors should all live in the same dimensionion')
+    
+  def __init__(self, basepoint, direction_vectors):
+    self.basepoint = basepoint
+    self.direction_vectors = direction_vectors
+    self.dimension = self.basepoint.dimension
+    
+    try:
+      for v in direction_vectors:
+        assert v.dimension == self.dimension
+    except AssertionError:
+      raise Exception(BASEPT_AND_DIR_VECTORS_MUST_BE_IN_SAME_DIM_MSG)
+      
+  def parameter_form(self):
+    print self.basepoint
+    for x in self.direction_vectors:
+      print x
+    ret = []
+    x = [0]*(len(self.direction_vectors)+1)
+    for i in range(self.dimension):
+      ret.append(x)
+    num_vectors = len(self.direction_vectors)
+    for i in range(self.dimension):
+      for j in range(num_vectors):
+        ret[i][j] = self.direction_vectors[j][i]
+      ret[i][num_vectors-1] = self.basepoint[i]
+    return ret
+  
+  def __str__(self):
+    ret = 'Parametrization Form:\n'
+    pf = self.parameter_form()
+    print pf
+    for i,v in enumerate(pf):
+      temp = 'X_{}={}'.format(i+1,'' if v[0]==0 else v[0])
+      for j in range(1,len(v)):
+        if v[j]==0:
+          continue
+        temp1 = '{}{}t{}'.format('+' if v[j]>0 else '',v[j],j)
+        temp = temp + temp1
+      ret = ret + temp + '\n'
+       
 
