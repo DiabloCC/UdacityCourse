@@ -55,11 +55,11 @@ class LinearSystem(object):
     j=0
     for i in range(m):
       while j<n:
-        c = system[i].normal_vector.coordinates[j]
+        c = system[i].normal_vector[j]
         if c==Decimal(0):
           flag = False
           for k in range(i+1,m):
-            if system[k].normal_vector.coordinates[j] != Decimal(0):
+            if system[k].normal_vector[j] != Decimal(0):
               system.swap_rows(i,k)
               flag = True
               break
@@ -67,10 +67,12 @@ class LinearSystem(object):
             j += 1
         else:
           for k in range(i+1,m):
-            system.add_multiple_times_row_to_row(-system[k].normal_vector.coordinates[j]/c,i,k)
+            system.add_multiple_times_row_to_row(-system[k].normal_vector[j]/c,i,k)
           j += 1
           break
-         
+    print 'anglar form'
+    print system  
+    print '$$$$$'
     return system
     
   def compute_rref(self):
@@ -81,15 +83,23 @@ class LinearSystem(object):
       if indices[i] < 0:
         continue
       c = tf[i].normal_vector[indices[i]]
+      print 'i=',i,'----'
+      print tf[i]
       if not MyDecimal(abs(c) - 1).is_near_zero():
+        print 'not near zero'
         c = Decimal(1)/c
+        print c
         tf.multiply_coefficient_and_row(c,i)
+      print tf[i]
       for k in range(i-1,-1, -1):
         c = tf[k].normal_vector[indices[i]]
+        print 'c=',c
         if MyDecimal(c).is_near_zero():
           continue
         tf.add_multiple_times_row_to_row(-c,i,k) 
-    
+        print tf[k]
+      print '---- i=',i
+        
     return tf
     
   def indices_of_first_nonzero_terms_in_each_row(self):
@@ -111,10 +121,12 @@ class LinearSystem(object):
 
   def compute_solution(self):
     try:
-      return self.do_gaussian_elimination()
+      # return self.do_gaussian_elimination()
+      return self.do_gaussian_elimination_and_parametrize_solution()
     except Exception as e:
-      if (str(e) == self.NO_SOLUTIONS_MSG or
-          str(e) == self.INF_SOLUTIONS_MSG):
+      # if (str(e) == self.NO_SOLUTIONS_MSG or
+      #    str(e) == self.INF_SOLUTIONS_MSG):
+      if str(e) == self.NO_SOLUTIONS_MSG:
           return str(e)
       else:
         raise e
@@ -133,6 +145,53 @@ class LinearSystem(object):
     solution_coordinates = [x.constant_term for x in rref.planes]
     return Vector(solution_coordinates)
     
+  def do_gaussian_elimination_and_parametrize_solution(self):
+    rref = self.compute_rref()
+    print rref
+    rref.raise_exception_if_contradictory_equation()
+    
+    direction_vectors = rref.extract_direction_vectors_for_parametrization()
+    basepoint = rref.extract_basepoint_for_parametrization()
+    
+    return Parametrization(basepoint, direction_vectors)
+    
+    # num_variables = rref.dimension
+    # solution_coordinates = [x.constant_term for x in rref.planes]
+    # return Vector(solution_coordinates)
+    
+  def extract_direction_vectors_for_parametrization(self):
+    num_variables = self.dimension
+    pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+    free_variable_indices = set(range(num_variables)) - set(pivot_indices)
+    
+    direction_vectors = []
+    
+    for free_var in free_variable_indices:
+      vector_coords = [0] * num_variables
+      vector_coords[free_var] = 1
+      for i, p in enumerate(self.planes):
+        pivot_var = pivot_indices[i]
+        if pivot_var < 0:
+          break
+        vector_coords[pivot_var] = -p.normal_vector[free_var]
+      direction_vectors.append(Vector(vector_coords))
+      
+    return direction_vectors
+    
+  def extract_basepoint_for_parametrization(self):
+    num_variables = self.dimension
+    pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+    
+    basepoint = [0] * num_variables
+    
+    for i, p in enumerate(self.planes):
+      pivot_var = pivot_indices[i]
+      if pivot_var < 0:
+        break
+      basepoint[pivot_var] = p.constant_term
+      
+    return Vector(basepoint)
+  
   def raise_exception_if_contradictory_equation(self):
     for p in self.planes:
       try:
@@ -165,9 +224,16 @@ class LinearSystem(object):
     for i in range(num_variables-1):
       direction_vectors.append([0]*num_variables)
     print pivot_indices
-    j = 0
+    cur_row = 0
     for i in range(num_equations):
       pv = pivot_indices[i]
+      if pv==-1:
+        print direction_vectors
+        print '$$'
+        for j in range(cur_row+1, num_variables):
+          direction_vectors[j-1][j] = 1
+        print direction_vectors
+        continue
       if pv>i:
         for j in range(pv-i,0,-1):
           direction_vectors[pv-j-1][pv-j] = 1
@@ -175,6 +241,7 @@ class LinearSystem(object):
         c = self[i].normal_vector[j]
         direction_vectors[j-1][pv] = 0 if MyDecimal(c).is_near_zero() else -c
       basepoint[pv]=self[i].constant_term
+      cur_row = pv
           
     for i in range(len(direction_vectors)):
       direction_vectors[i] =  Vector(direction_vectors[i]) 
@@ -254,18 +321,12 @@ class Parametrization(object):
   
   def __str__(self):
     ret = 'Parametrization Form:\n'
-    pf = self.parameter_form()
-    #print pf
-    for i,v in enumerate(pf):
-      temp = 'X_{}={}'.format(i+1,'' if v[0]==0 else v[0])
-      for j in range(1,len(v)):
-        if v[j]==0:
-          continue
-        temp1 = '{}{}t{}'.format('+' if v[0]!=0 and v[j]>0 else '',v[j],j)
-        temp = temp + temp1
-        #print temp
+    for i in range(self.dimension):
+      temp = 'X_{} = {}'.format(i+1, self.basepoint[i])
+      for j in range(len(self.direction_vectors)):
+        temp = (temp + '+ {} t_{}').format(self.direction_vectors[j][i], j+1)
       ret = ret + temp + '\n'
-      
+     
     return ret
        
 

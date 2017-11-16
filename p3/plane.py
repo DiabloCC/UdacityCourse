@@ -9,7 +9,7 @@ getcontext().prec = 30
 
 class Plane(object):
 
-  NO_NONZERO_ELTS_FOUND_MSG = 'No nonzero elements found'
+  NO_NONZERO_ELTS_FOUND_MSG = 'No nonezero elements found'
 
   def __init__(self, normal_vector=None, constant_term=None):
     self.dimension = 3

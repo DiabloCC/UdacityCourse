@@ -101,14 +101,14 @@ def plane_ex():
   print "-"*10
   
 def parametrization_ex():
-  # p1 = Plane(Vector([0.786,0.786,0.588]),-0.714)
-  # p2 = Plane(Vector([-0.138,-0.138,0.244]),0.319)
-  # s = LinearSystem([p1,p2])
-  # print s
-  # try:
-  #   print s.compute_solution()
-  # except Exception as e:
-  #   print str(e)
+  p1 = Plane(Vector([0.786,0.786,0.588]),-0.714)
+  p2 = Plane(Vector([-0.138,-0.138,0.244]),0.319)
+  s = LinearSystem([p1,p2])
+  print s
+  try:
+    print s.compute_solution()
+  except Exception as e:
+    print str(e)
   
   p1 = Plane(Vector([8.631,5.112,-1.816]),-5.113)
   p2 = Plane(Vector([4.315,11.132,-5.270]),-6.775) 
@@ -119,17 +119,18 @@ def parametrization_ex():
     print s.compute_solution()
   except Exception as e:
     print str(e)
-  # 
-  # p1 = Plane(Vector([-0.935,1.760,-9.365]),-9.955)
-  # p2 = Plane(Vector([0.187,0.352,-1.873]),-1.991) 
-  # p3 = Plane(Vector([0.374,0.704,-3.746]),-3.982)
-  # p4 = Plane(Vector([-0.561,-1.056,5.619]),5.973)
-  # s = LinearSystem([p1,p2,p3,p4])
-  # print s
-  # try:
-  #   print s.compute_solution()
-  # except Exception as e:
-  #   print str(e)
+  
+  print '\n'
+  p1 = Plane(Vector([-0.935,1.760,-9.365]),-9.955)
+  p2 = Plane(Vector([0.187,0.352,-1.873]),-1.991) 
+  p3 = Plane(Vector([0.374,0.704,-3.746]),-3.982)
+  p4 = Plane(Vector([-0.561,-1.056,5.619]),5.973)
+  s = LinearSystem([p1,p2,p3,p4])
+  print s
+  try:
+    print s.compute_solution()
+  except Exception as e:
+    print str(e)
   
   
 if __name__ == '__main__':
