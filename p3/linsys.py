@@ -53,12 +53,12 @@ class LinearSystem(object):
     m = len(system)
     n = system.dimension
     j=0
-    for i in xrange(m):
+    for i in range(m):
       while j<n:
         c = system[i].normal_vector.coordinates[j]
         if c==Decimal(0):
           flag = False
-          for k in xrange(i+1,m):
+          for k in range(i+1,m):
             if system[k].normal_vector.coordinates[j] != Decimal(0):
               system.swap_rows(i,k)
               flag = True
@@ -66,7 +66,7 @@ class LinearSystem(object):
           if not flag:
             j += 1
         else:
-          for k in xrange(i+1,m):
+          for k in range(i+1,m):
             system.add_multiple_times_row_to_row(-system[k].normal_vector.coordinates[j]/c,i,k)
           j += 1
           break
@@ -121,6 +121,7 @@ class LinearSystem(object):
         
   def do_gaussian_elimination(self):
     rref = self.compute_rref()
+    print rref
     
     rref.raise_exception_if_contradictory_equation()
     # rref.raise_exception_if_too_few_pivots()
@@ -159,23 +160,40 @@ class LinearSystem(object):
     pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
     num_variables = self.dimension
     num_equations = len(self)
-    basepoint = [0]*self.dimension
+    basepoint = [0]*num_variables
     direction_vectors = []
-    
-    for i in range(pivot_indices[0]+1,num_variables):
-      direction_vector = [0]*num_variables
-      for j in range(num_equations):
-        if pivot_indices[j]<0:
-          break
-        c = self[j].normal_vector[i]
-        #if MyDecimal(c).is_near_zero()
-        direction_vector[j] = Decimal(0) if MyDecimal(c).is_near_zero() else c
-        basepoint[j] = self[j].constant_term
-      print 'direction_vector=',direction_vector
-      print 'basepoint=',basepoint
-      print 'direction_vectors=',direction_vectors
-      direction_vectors.append(Vector(direction_vector).time_scalar(-1))
-      print '******'
+    for i in range(num_variables-1):
+      direction_vectors.append([0]*num_variables)
+    print pivot_indices
+    j = 0
+    for i in range(num_equations):
+      pv = pivot_indices[i]
+      if pv>i:
+        for j in range(pv-i,0,-1):
+          direction_vectors[pv-j-1][pv-j] = 1
+      for j in range(pv+1,num_variables):
+        c = self[i].normal_vector[j]
+        direction_vectors[j-1][pv] = 0 if MyDecimal(c).is_near_zero() else -c
+      basepoint[pv]=self[i].constant_term
+          
+    for i in range(len(direction_vectors)):
+      direction_vectors[i] =  Vector(direction_vectors[i]) 
+    #for i in range(pivot_indices[0]+1,num_variables):
+    #  direction_vector = [0]*num_variables
+    #  for j in range(num_equations):
+    #    if pivot_indices[j]<0:
+    #      break
+    #    if pivot_indices[j] > i:
+    #      direction_vector[j] = -1
+    #      continue
+    #
+    #    c = self[j].normal_vector[i]
+    #    #if MyDecimal(c).is_near_zero()
+    #    direction_vector[j] = Decimal(0) if MyDecimal(c).is_near_zero() else -c
+    #    basepoint[j] = self[j].constant_term
+    #  print 'direction_vector=',direction_vector
+    #  print 'direction_vectors=',direction_vectors
+    #  direction_vectors.append(Vector(direction_vector).time_scalar(-1))
     return Parametrization(Vector(basepoint), direction_vectors)  
       
   
@@ -219,31 +237,35 @@ class Parametrization(object):
       raise Exception(BASEPT_AND_DIR_VECTORS_MUST_BE_IN_SAME_DIM_MSG)
       
   def parameter_form(self):
-    print self.basepoint
-    for x in self.direction_vectors:
-      print x
+    # print self.basepoint
+    # for x in self.direction_vectors:
+    #   print x
     ret = []
-    x = [0]*(len(self.direction_vectors)+1)
-    for i in range(self.dimension):
-      ret.append(x)
     num_vectors = len(self.direction_vectors)
+   
+    
     for i in range(self.dimension):
+      x = []
+      x.append(self.basepoint[i])
       for j in range(num_vectors):
-        ret[i][j] = self.direction_vectors[j][i]
-      ret[i][num_vectors-1] = self.basepoint[i]
+        x.append(self.direction_vectors[j][i])
+      ret.append(x)
     return ret
   
   def __str__(self):
     ret = 'Parametrization Form:\n'
     pf = self.parameter_form()
-    print pf
+    #print pf
     for i,v in enumerate(pf):
       temp = 'X_{}={}'.format(i+1,'' if v[0]==0 else v[0])
       for j in range(1,len(v)):
         if v[j]==0:
           continue
-        temp1 = '{}{}t{}'.format('+' if v[j]>0 else '',v[j],j)
+        temp1 = '{}{}t{}'.format('+' if v[0]!=0 and v[j]>0 else '',v[j],j)
         temp = temp + temp1
+        #print temp
       ret = ret + temp + '\n'
+      
+    return ret
        
 
