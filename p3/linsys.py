@@ -82,18 +82,15 @@ class LinearSystem(object):
     for i in reversed(range(len(self))):
       if indices[i] < 0:
         continue
-      c = tf[i].normal_vector[indices[i]]
       print 'i=',i,'----'
+      c = Decimal(1.0)/tf[i].normal_vector[indices[i]]
+      print c
+      tf.multiply_coefficient_and_row(c,i)
       print tf[i]
-      if not MyDecimal(abs(c) - 1).is_near_zero():
-        print 'not near zero'
-        c = Decimal(1)/c
-        print c
-        tf.multiply_coefficient_and_row(c,i)
-      print tf[i]
-      for k in range(i-1,-1, -1):
+      for k in reversed(range(i)):
+        print 'k=',k
         c = tf[k].normal_vector[indices[i]]
-        print 'c=',c
+        print 'c=',c,'indices[i]=',indices[i]
         if MyDecimal(c).is_near_zero():
           continue
         tf.add_multiple_times_row_to_row(-c,i,k) 
@@ -189,7 +186,7 @@ class LinearSystem(object):
       if pivot_var < 0:
         break
       basepoint[pivot_var] = p.constant_term
-      
+    print basepoint  
     return Vector(basepoint)
   
   def raise_exception_if_contradictory_equation(self):
@@ -320,11 +317,14 @@ class Parametrization(object):
     return ret
   
   def __str__(self):
+    num_decimal_places = 3
+    
     ret = 'Parametrization Form:\n'
     for i in range(self.dimension):
-      temp = 'X_{} = {}'.format(i+1, self.basepoint[i])
+      temp = 'X_{} = {}'.format(i+1, round(self.basepoint[i],num_decimal_places))
       for j in range(len(self.direction_vectors)):
-        temp = (temp + '+ {} t_{}').format(self.direction_vectors[j][i], j+1)
+        if not MyDecimal(self.direction_vectors[j][i]).is_near_zero():
+          temp = (temp + '+ {} t_{}').format(round(self.direction_vectors[j][i],num_decimal_places), j+1)
       ret = ret + temp + '\n'
      
     return ret
