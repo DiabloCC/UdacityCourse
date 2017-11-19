@@ -70,9 +70,6 @@ class LinearSystem(object):
             system.add_multiple_times_row_to_row(-system[k].normal_vector[j]/c,i,k)
           j += 1
           break
-    print 'anglar form'
-    print system  
-    print '$$$$$'
     return system
     
   def compute_rref(self):
@@ -82,20 +79,13 @@ class LinearSystem(object):
     for i in reversed(range(len(self))):
       if indices[i] < 0:
         continue
-      print 'i=',i,'----'
       c = Decimal(1.0)/tf[i].normal_vector[indices[i]]
-      print c
       tf.multiply_coefficient_and_row(c,i)
-      print tf[i]
       for k in reversed(range(i)):
-        print 'k=',k
         c = tf[k].normal_vector[indices[i]]
-        print 'c=',c,'indices[i]=',indices[i]
         if MyDecimal(c).is_near_zero():
           continue
         tf.add_multiple_times_row_to_row(-c,i,k) 
-        print tf[k]
-      print '---- i=',i
         
     return tf
     
@@ -127,24 +117,10 @@ class LinearSystem(object):
           return str(e)
       else:
         raise e
-        
-  def do_gaussian_elimination(self):
-    rref = self.compute_rref()
-    print rref
-    
-    rref.raise_exception_if_contradictory_equation()
-    # rref.raise_exception_if_too_few_pivots()
-    if rref.if_too_few_pivots():
-      # raise Excetion(self.INF_SOLUTIONS_MSG)
-      return rref.parametrize()
-    
-    num_variables = rref.dimension
-    solution_coordinates = [x.constant_term for x in rref.planes]
-    return Vector(solution_coordinates)
-    
+  
   def do_gaussian_elimination_and_parametrize_solution(self):
     rref = self.compute_rref()
-    print rref
+    # print rref
     rref.raise_exception_if_contradictory_equation()
     
     direction_vectors = rref.extract_direction_vectors_for_parametrization()
@@ -186,7 +162,6 @@ class LinearSystem(object):
       if pivot_var < 0:
         break
       basepoint[pivot_var] = p.constant_term
-    print basepoint  
     return Vector(basepoint)
   
   def raise_exception_if_contradictory_equation(self):
@@ -200,67 +175,7 @@ class LinearSystem(object):
             raise Exception(self.NO_SOLUTIONS_MSG)
         else:
           raise e
-  
-  def if_too_few_pivots(self):
-    pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
-    num_pivots = len(pivot_indices) - pivot_indices.count(-1)
-    num_variables = self.dimension
-    if num_pivots<num_variables:
-      return True
-    return False
-      
-  def parametrize(self):
-    print '*'*10
-    print self
-    print '+'*5
-    pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
-    num_variables = self.dimension
-    num_equations = len(self)
-    basepoint = [0]*num_variables
-    direction_vectors = []
-    for i in range(num_variables-1):
-      direction_vectors.append([0]*num_variables)
-    print pivot_indices
-    cur_row = 0
-    for i in range(num_equations):
-      pv = pivot_indices[i]
-      if pv==-1:
-        print direction_vectors
-        print '$$'
-        for j in range(cur_row+1, num_variables):
-          direction_vectors[j-1][j] = 1
-        print direction_vectors
-        continue
-      if pv>i:
-        for j in range(pv-i,0,-1):
-          direction_vectors[pv-j-1][pv-j] = 1
-      for j in range(pv+1,num_variables):
-        c = self[i].normal_vector[j]
-        direction_vectors[j-1][pv] = 0 if MyDecimal(c).is_near_zero() else -c
-      basepoint[pv]=self[i].constant_term
-      cur_row = pv
-          
-    for i in range(len(direction_vectors)):
-      direction_vectors[i] =  Vector(direction_vectors[i]) 
-    #for i in range(pivot_indices[0]+1,num_variables):
-    #  direction_vector = [0]*num_variables
-    #  for j in range(num_equations):
-    #    if pivot_indices[j]<0:
-    #      break
-    #    if pivot_indices[j] > i:
-    #      direction_vector[j] = -1
-    #      continue
-    #
-    #    c = self[j].normal_vector[i]
-    #    #if MyDecimal(c).is_near_zero()
-    #    direction_vector[j] = Decimal(0) if MyDecimal(c).is_near_zero() else -c
-    #    basepoint[j] = self[j].constant_term
-    #  print 'direction_vector=',direction_vector
-    #  print 'direction_vectors=',direction_vectors
-    #  direction_vectors.append(Vector(direction_vector).time_scalar(-1))
-    return Parametrization(Vector(basepoint), direction_vectors)  
-      
-  
+
   def __len__(self):
     return len(self.planes)
 
@@ -299,23 +214,7 @@ class Parametrization(object):
         assert v.dimension == self.dimension
     except AssertionError:
       raise Exception(BASEPT_AND_DIR_VECTORS_MUST_BE_IN_SAME_DIM_MSG)
-      
-  def parameter_form(self):
-    # print self.basepoint
-    # for x in self.direction_vectors:
-    #   print x
-    ret = []
-    num_vectors = len(self.direction_vectors)
-   
-    
-    for i in range(self.dimension):
-      x = []
-      x.append(self.basepoint[i])
-      for j in range(num_vectors):
-        x.append(self.direction_vectors[j][i])
-      ret.append(x)
-    return ret
-  
+
   def __str__(self):
     num_decimal_places = 3
     
