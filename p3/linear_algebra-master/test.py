@@ -143,7 +143,6 @@ class LinearRegressionTestCase(unittest.TestCase):
                 self.assertNotEqual(x,None,"Matrix A is not singular")
                 self.assertEqual(np.array(x).shape,(r,1),"Expected shape({},1), but got shape{}".format(r,np.array(x).shape))
                 Ax = np.dot(A,np.array(x))
-                print np.linalg.solve(A, b)
                 loss = np.mean((Ax - b)**2)
                 self.assertTrue(loss<0.1,"Bad result.")
 
