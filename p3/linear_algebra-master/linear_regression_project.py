@@ -42,10 +42,10 @@ C = [[1],
      [3]]
 
 #TODO 创建一个 4*4 单位矩阵
-I = [[1,5,9,13],
-     [2,6,10,14],
-     [3,7,11,15],
-     [4,8,12,16]
+I = [[1,0,0,0],
+     [0,1,0,0],
+     [0,0,1,0],
+     [0,0,0,1]
 ]
 
 
@@ -95,9 +95,13 @@ get_ipython().magic(u'run -i -e test.py LinearRegressionTestCase.test_matxRound'
 
 # TODO 计算矩阵的转置
 def transpose(M):
-    rows, cols = shape(M)
-    Mt = [[M[i][j] for i in range(rows)] for j in range(cols)]
-    return Mt
+    # rows, cols = shape(M)
+    # Mt = [[M[i][j] for i in range(rows)] for j in range(cols)]
+    # return Mt
+    return [list(col) for col in zip(*M)]
+# zip(*M)将M的每一列生成一个tuple,放入列表中并返回该列表
+# 通过列表生成式顺序取出该返回列表中的每一个tuple转换为list
+# 从而生成原矩阵列表的转置列表，即列转为行
 
 
 # In[9]:
@@ -165,7 +169,7 @@ get_ipython().magic(u'run -i -e test.py LinearRegressionTestCase.test_matxMultip
 
 # TODO 构造增广矩阵，假设A，b行数相同
 def augmentMatrix(A, b):
-    return [A[i]+b[i] for i in range(shape(A)[0])]
+    return [ra+rb for ra, rb in zip(A, b)]
 
 
 # In[13]:
@@ -285,24 +289,59 @@ printInMatrixFormat(Ab,padding=4,truncating=0)
 # 
 # 增广矩阵
 # $ Ab = \begin{bmatrix}
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\end{bmatrix}$
+#     7 & 5 & 3 & -5 & 1\\
+#     -4 & 6 & 2 & -2 & 1\\
+#     -9 & 4 & -5 & 9 & 1\\
+#     -9 & -10 & 5 & -4 & 1\end{bmatrix}$
 # 
 # $ --> \begin{bmatrix}
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\end{bmatrix}$
+#     -9 & 4 & -5 & 9 & 1\\
+#     -4 & 6 & 2 & -2 & 1\\
+#     7 & 5 & 3 & -5 & 1\\
+#     -9 & -10 & 5 & -4 & 1\end{bmatrix}  \quad 交换第1列绝对值最大行 $
+#     
+# $ -->\begin{bmatrix}
+#     -9\times\frac{1}{-9} & 4\times\frac{1}{-9} & -5\times\frac{1}{-9} & 9\times\frac{1}{-9} & 1\times\frac{1}{-9}\\
+#     -4 & 6 & 2 & -2 & 1\\
+#     7 & 5 & 3 & -5 & 1\\
+#     -9 & -10 & 5 & -4 & 1\end{bmatrix} --> 
+#     \begin{bmatrix}
+#     1 & -\frac{4}{9} & \frac{5}{9} & -1 & -\frac{1}{9}\\
+#    -4 & 6 & 2 & -2 & 1\\
+#     7 & 5 & 3 & -5 & 1\\
+#     -9 & -10 & 5 & -4 & 1\end{bmatrix}  \quad 缩放该列系数为 1 $
 #     
 # $ --> \begin{bmatrix}
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\end{bmatrix}$
+#     1 & -\frac{4}{9} & \frac{5}{9} & -1 & -\frac{1}{9}\\
+#     0 & \frac{38}{9} & \frac{38}{9} & -6 & \frac{5}{9}\\
+#     0 & \frac{73}{9} & -\frac{8}{9} & 2 & \frac{16}{9}\\
+#     0 & -14 & 10 & -13 & 0\end{bmatrix}  \quad 消除该列其他行系数 $
 #     
-# $...$
+# $ --> \begin{bmatrix}
+#     1 & -\frac{4}{9} & \frac{5}{9} & -1 & -\frac{1}{9}\\
+#     0 & -14 & 10 & -13 & 0\\
+#     0 & \frac{73}{9} & -\frac{8}{9} & 2 & \frac{16}{9}\\
+#     0 & \frac{38}{9} & \frac{38}{9} & -6 & \frac{5}{9}\end{bmatrix}  \quad 交换第2列绝对值最大行 $
+#   
+# $ --> \begin{bmatrix}
+#     1 & 0 & \frac{5}{21} & -\frac{37}{63} & -\frac{1}{9}\\
+#     0 & 1 & -\frac{5}{7} & \frac{13}{14} & 0\\
+#     0 & 0 & \frac{103}{21} & -\frac{697}{126} & \frac{16}{9}\\
+#     0 & 0 & \frac{152}{21} & -\frac{625}{63} & \frac{5}{9}\end{bmatrix}  \quad 处理第2列 $
+#     
+# $ --> \begin{bmatrix}
+#     1 & 0 & 0 & -\frac{119}{456} & -\frac{59}{456}\\
+#     0 & 1 & 0 & -\frac{23}{456} & \frac{25}{456}\\
+#     0 & 0 & 1 & -\frac{625}{456} & \frac{35}{456}\\
+#     0 & 0 & 0 & \frac{181}{152} & \frac{213}{152}\end{bmatrix}  \quad 处理第3列 $
+#     
+# $ --> \begin{bmatrix}
+#     1 & 0 & 0 & 0 & \frac{126}{709}\\
+#     0 & 1 & 0 & 0 & \frac{62}{543}\\
+#     0 & 0 & 1 & 0 & \frac{49}{29}\\
+#     0 & 0 & 0 & 1 & \frac{213}{181}\end{bmatrix}  \quad 处理第4列 $
+#     
+# 
 
 # In[21]:
 
@@ -326,28 +365,39 @@ printInMatrixFormat(Ab,padding=4,truncating=0)
 # 
 # 增广矩阵
 # $ Ab = \begin{bmatrix}
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\end{bmatrix}$
+#     -7 & -3 & 1 & -9 & 1\\ 
+#     0 & 0 & 0 & 0 & 1\\ 
+#     -2 & 7 & 7 & -3 & 1\\
+#     8 & -5 & -6 & 3 & 1\end{bmatrix}$
 # 
 # $ --> \begin{bmatrix}
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\end{bmatrix}$
+#     1 & -\frac{5}{8} & -\frac{3}{4} & \frac{3}{8} & \frac{1}{8}\\
+#     0 & 0 & 0 & 0 & 1\\
+#     0 & \frac{23}{4} & \frac{11}{2} & -\frac{9}{4} & \frac{5}{4}\\
+#     0 & -\frac{59}{8} & -\frac{17}{4} & -\frac{51}{8} & \frac{15}{8}\end{bmatrix} \quad 处理第1列 $
 #     
 # $ --> \begin{bmatrix}
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\\
-#     0 & 0 & 0 & 0 & 0\end{bmatrix}$
+#     1 & 0 & -\frac{23}{59} & \frac{54}{59} & -\frac{2}{59}\\
+#     0 & 1 & \frac{34}{59} & \frac{51}{59} & -\frac{15}{59}\\
+#     0 & 0 & \frac{129}{59} & -\frac{426}{59} & \frac{160}{59}\\
+#     0 & 0 & 0 & 0 & 1\end{bmatrix} \quad 处理第2列 $
 #     
-# $...$
+# $ --> \begin{bmatrix}
+#     1 & 0 & 0 & -\frac{16}{43} & \frac{58}{129}\\
+#     0 & 1 & 0 & \frac{119}{43} & -\frac{125}{129}\\
+#     0 & 0 & 1 & -\frac{142}{43} & \frac{160}{129}\\
+#     0 & 0 & 0 & 0 & 1\end{bmatrix} \quad 处理第3列 $
+# 
+# $ --> \begin{bmatrix}
+#     1 & 0 & 0 & -\frac{16}{43} & \frac{58}{129}\\
+#     0 & 1 & 0 & \frac{119}{43} & -\frac{125}{129}\\
+#     0 & 0 & 1 & -\frac{142}{43} & \frac{160}{129}\\
+#     0 & 0 & 0 & 0 & 1\end{bmatrix} \quad 处理第4列,对角线之下系数绝对值最大为0，是奇异矩阵 $
+# 
 
 # ### 2.3.3 实现 Gaussian Jordan 消元法
 
-# In[22]:
+# In[34]:
 
 
 # TODO 实现 Gaussain Jordan 方法求解 Ax = b
@@ -370,37 +420,40 @@ def gj_Solve(A, b, decPts=4, epsilon = 1.0e-16):
     if (rows_1 != rows_2) or (rows_1 != cols_1):
         return None
     Ab = augmentMatrix(A, b) 
-    # printInMatrixFormat(Ab,padding=4,truncating=3)
-    # print '*'*30
+    printInMatrixFormat(Ab,padding=4,truncating=3)
+    print '*'*30
     for c in range(cols_1):
-        for r in range(c+1, cols_1):
-            if abs(Ab[c][c])<abs(Ab[r][c]):
-                swapRows(Ab, c, r)
-        if abs(Ab[c][c])<=epsilon:  #奇异矩阵
-            # print 'Ab[%d][%d]='%(c,c),Ab[c][c]
+        maxLine = c
+        for r in range(c+1, rows_1):
+            if abs(Ab[maxLine][c])<abs(Ab[r][c]):
+                maxLine = r
+        if abs(Ab[maxLine][c])<=epsilon:  #奇异矩阵
             return None
+        else:
+            swapRows(Ab, c, maxLine)
         scaleRow(Ab, c, 1.0/Ab[c][c])  #缩放系数至1
-        for r in range(c+1, cols_1):
-            addScaledRow(Ab, r, c, -Ab[r][c]/Ab[c][c])  #消除系数
+        for r in range(cols_1):
+            if r == c:
+                continue
+            addScaledRow(Ab, r, c, -Ab[r][c])  #消除系数
         
-    # print '+'*30
-    # printInMatrixFormat(Ab,padding=4,truncating=3)
-    # print '+'*30
-    for i in reversed(range(rows_1)):
-        for j in range(i):
-            scale = Ab[j][i]
-            if abs(scale)>epsilon:
-                addScaledRow(Ab,j,i,-scale)
-        # print '-'*30
-        # printInMatrixFormat(Ab,padding=4,truncating=3)
-        # print '-'*30
-    ret =  matxRound([[Ab[row][cols_1]] for row in range(rows_1)],decPts)
-    # print 'result:\n',ret
-    return ret
+        print '-'*30
+        printInMatrixFormat(Ab,padding=4,truncating=3)
+        print '-'*30
     
+    ret =  matxRound([[Ab[row][cols_1]] for row in range(rows_1)],decPts)
+    # # print 'result:\n',ret
+    return ret
+
+#A = [[7,5, 3,-5],
+#    [ -4, 6, 2, -2],
+#    [-9, 4, -5,9],
+#    [ -9,-10,5, -4]]
+#b =[[1],[1],[1],[1]]
+#gj_Solve(A, b)  
 
 
-# In[23]:
+# In[30]:
 
 
 # 运行以下代码测试你的 gj_Solve 函数

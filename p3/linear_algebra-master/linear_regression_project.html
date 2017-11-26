@@ -11828,10 +11828,10 @@ div#notebook {
      <span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
 
 <span class="c1">#TODO 创建一个 4*4 单位矩阵</span>
-<span class="n">I</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">13</span><span class="p">],</span>
-     <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">14</span><span class="p">],</span>
-     <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">15</span><span class="p">],</span>
-     <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">16</span><span class="p">]</span>
+<span class="n">I</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+     <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+     <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+     <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
 <span class="p">]</span>
 </pre></div>
 
@@ -11952,7 +11952,7 @@ OK
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>.
 ----------------------------------------------------------------------
-Ran 1 test in 0.094s
+Ran 1 test in 0.047s
 
 OK
 </pre>
@@ -11978,9 +11978,13 @@ OK
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO 计算矩阵的转置</span>
 <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
-    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">shape</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
-    <span class="n">Mt</span> <span class="o">=</span> <span class="p">[[</span><span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">)]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="n">Mt</span>
+    <span class="c1"># rows, cols = shape(M)</span>
+    <span class="c1"># Mt = [[M[i][j] for i in range(rows)] for j in range(cols)]</span>
+    <span class="c1"># return Mt</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">M</span><span class="p">)]</span>
+<span class="c1"># zip(*M)将M的每一列生成一个tuple,放入列表中并返回该列表</span>
+<span class="c1"># 通过列表生成式顺序取出该返回列表中的每一个tuple转换为list</span>
+<span class="c1"># 从而生成原矩阵列表的转置列表，即列转为行</span>
 </pre></div>
 
 </div>
@@ -12013,7 +12017,7 @@ OK
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>.
 ----------------------------------------------------------------------
-Ran 1 test in 0.031s
+Ran 1 test in 0.017s
 
 OK
 </pre>
@@ -12081,7 +12085,7 @@ OK
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>.
 ----------------------------------------------------------------------
-Ran 1 test in 0.078s
+Ran 1 test in 0.096s
 
 OK
 </pre>
@@ -12127,7 +12131,7 @@ OK
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO 构造增广矩阵，假设A，b行数相同</span>
 <span class="k">def</span> <span class="nf">augmentMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">(</span><span class="n">A</span><span class="p">)[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ra</span><span class="o">+</span><span class="n">rb</span> <span class="k">for</span> <span class="n">ra</span><span class="p">,</span> <span class="n">rb</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)]</span>
 </pre></div>
 
 </div>
@@ -12137,7 +12141,7 @@ OK
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># 运行以下代码测试你的 augmentMatrix 函数</span>
@@ -12444,21 +12448,50 @@ OK
 </ol>
 <p>增广矩阵
 $ Ab = \begin{bmatrix}
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\end{bmatrix}$</p>
+    7 &amp; 5 &amp; 3 &amp; -5 &amp; 1\\
+    -4 &amp; 6 &amp; 2 &amp; -2 &amp; 1\\
+    -9 &amp; 4 &amp; -5 &amp; 9 &amp; 1\\
+    -9 &amp; -10 &amp; 5 &amp; -4 &amp; 1\end{bmatrix}$</p>
 <p>$ --&gt; \begin{bmatrix}
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\end{bmatrix}$</p>
+    -9 &amp; 4 &amp; -5 &amp; 9 &amp; 1\\
+    -4 &amp; 6 &amp; 2 &amp; -2 &amp; 1\\
+    7 &amp; 5 &amp; 3 &amp; -5 &amp; 1\\
+    -9 &amp; -10 &amp; 5 &amp; -4 &amp; 1\end{bmatrix}  \quad 交换第1列绝对值最大行 $</p>
+<p>$ --&gt;\begin{bmatrix}
+    -9\times\frac{1}{-9} &amp; 4\times\frac{1}{-9} &amp; -5\times\frac{1}{-9} &amp; 9\times\frac{1}{-9} &amp; 1\times\frac{1}{-9}\\
+    -4 &amp; 6 &amp; 2 &amp; -2 &amp; 1\\
+    7 &amp; 5 &amp; 3 &amp; -5 &amp; 1\\
+    -9 &amp; -10 &amp; 5 &amp; -4 &amp; 1\end{bmatrix} --&gt; 
+    \begin{bmatrix}
+    1 &amp; -\frac{4}{9} &amp; \frac{5}{9} &amp; -1 &amp; -\frac{1}{9}\\
+   -4 &amp; 6 &amp; 2 &amp; -2 &amp; 1\\
+    7 &amp; 5 &amp; 3 &amp; -5 &amp; 1\\
+    -9 &amp; -10 &amp; 5 &amp; -4 &amp; 1\end{bmatrix}  \quad 缩放该列系数为 1 $</p>
 <p>$ --&gt; \begin{bmatrix}
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\end{bmatrix}$</p>
-<p>$...$</p>
+    1 &amp; -\frac{4}{9} &amp; \frac{5}{9} &amp; -1 &amp; -\frac{1}{9}\\
+    0 &amp; \frac{38}{9} &amp; \frac{38}{9} &amp; -6 &amp; \frac{5}{9}\\
+    0 &amp; \frac{73}{9} &amp; -\frac{8}{9} &amp; 2 &amp; \frac{16}{9}\\
+    0 &amp; -14 &amp; 10 &amp; -13 &amp; 0\end{bmatrix}  \quad 消除该列其他行系数 $</p>
+<p>$ --&gt; \begin{bmatrix}
+    1 &amp; -\frac{4}{9} &amp; \frac{5}{9} &amp; -1 &amp; -\frac{1}{9}\\
+    0 &amp; -14 &amp; 10 &amp; -13 &amp; 0\\
+    0 &amp; \frac{73}{9} &amp; -\frac{8}{9} &amp; 2 &amp; \frac{16}{9}\\
+    0 &amp; \frac{38}{9} &amp; \frac{38}{9} &amp; -6 &amp; \frac{5}{9}\end{bmatrix}  \quad 交换第2列绝对值最大行 $</p>
+<p>$ --&gt; \begin{bmatrix}
+    1 &amp; 0 &amp; \frac{5}{21} &amp; -\frac{37}{63} &amp; -\frac{1}{9}\\
+    0 &amp; 1 &amp; -\frac{5}{7} &amp; \frac{13}{14} &amp; 0\\
+    0 &amp; 0 &amp; \frac{103}{21} &amp; -\frac{697}{126} &amp; \frac{16}{9}\\
+    0 &amp; 0 &amp; \frac{152}{21} &amp; -\frac{625}{63} &amp; \frac{5}{9}\end{bmatrix}  \quad 处理第2列 $</p>
+<p>$ --&gt; \begin{bmatrix}
+    1 &amp; 0 &amp; 0 &amp; -\frac{119}{456} &amp; -\frac{59}{456}\\
+    0 &amp; 1 &amp; 0 &amp; -\frac{23}{456} &amp; \frac{25}{456}\\
+    0 &amp; 0 &amp; 1 &amp; -\frac{625}{456} &amp; \frac{35}{456}\\
+    0 &amp; 0 &amp; 0 &amp; \frac{181}{152} &amp; \frac{213}{152}\end{bmatrix}  \quad 处理第3列 $</p>
+<p>$ --&gt; \begin{bmatrix}
+    1 &amp; 0 &amp; 0 &amp; 0 &amp; \frac{126}{709}\\
+    0 &amp; 1 &amp; 0 &amp; 0 &amp; \frac{62}{543}\\
+    0 &amp; 0 &amp; 1 &amp; 0 &amp; \frac{49}{29}\\
+    0 &amp; 0 &amp; 0 &amp; 1 &amp; \frac{213}{181}\end{bmatrix}  \quad 处理第4列 $</p>
 
 </div>
 </div>
@@ -12518,21 +12551,30 @@ $ Ab = \begin{bmatrix}
 </ol>
 <p>增广矩阵
 $ Ab = \begin{bmatrix}
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\end{bmatrix}$</p>
+    -7 &amp; -3 &amp; 1 &amp; -9 &amp; 1\\ 
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; 1\\ 
+    -2 &amp; 7 &amp; 7 &amp; -3 &amp; 1\\
+    8 &amp; -5 &amp; -6 &amp; 3 &amp; 1\end{bmatrix}$</p>
 <p>$ --&gt; \begin{bmatrix}
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\end{bmatrix}$</p>
+    1 &amp; -\frac{5}{8} &amp; -\frac{3}{4} &amp; \frac{3}{8} &amp; \frac{1}{8}\\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; 1\\
+    0 &amp; \frac{23}{4} &amp; \frac{11}{2} &amp; -\frac{9}{4} &amp; \frac{5}{4}\\
+    0 &amp; -\frac{59}{8} &amp; -\frac{17}{4} &amp; -\frac{51}{8} &amp; \frac{15}{8}\end{bmatrix} \quad 处理第1列 $</p>
 <p>$ --&gt; \begin{bmatrix}
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
-    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\end{bmatrix}$</p>
-<p>$...$</p>
+    1 &amp; 0 &amp; -\frac{23}{59} &amp; \frac{54}{59} &amp; -\frac{2}{59}\\
+    0 &amp; 1 &amp; \frac{34}{59} &amp; \frac{51}{59} &amp; -\frac{15}{59}\\
+    0 &amp; 0 &amp; \frac{129}{59} &amp; -\frac{426}{59} &amp; \frac{160}{59}\\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; 1\end{bmatrix} \quad 处理第2列 $</p>
+<p>$ --&gt; \begin{bmatrix}
+    1 &amp; 0 &amp; 0 &amp; -\frac{16}{43} &amp; \frac{58}{129}\\
+    0 &amp; 1 &amp; 0 &amp; \frac{119}{43} &amp; -\frac{125}{129}\\
+    0 &amp; 0 &amp; 1 &amp; -\frac{142}{43} &amp; \frac{160}{129}\\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; 1\end{bmatrix} \quad 处理第3列 $</p>
+<p>$ --&gt; \begin{bmatrix}
+    1 &amp; 0 &amp; 0 &amp; -\frac{16}{43} &amp; \frac{58}{129}\\
+    0 &amp; 1 &amp; 0 &amp; \frac{119}{43} &amp; -\frac{125}{129}\\
+    0 &amp; 0 &amp; 1 &amp; -\frac{142}{43} &amp; \frac{160}{129}\\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; 1\end{bmatrix} \quad 处理第4列,对角线之下系数绝对值最大为0，是奇异矩阵 $</p>
 
 </div>
 </div>
@@ -12547,7 +12589,7 @@ $ Ab = \begin{bmatrix}
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO 实现 Gaussain Jordan 方法求解 Ax = b</span>
@@ -12570,34 +12612,37 @@ $ Ab = \begin{bmatrix}
     <span class="k">if</span> <span class="p">(</span><span class="n">rows_1</span> <span class="o">!=</span> <span class="n">rows_2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">rows_1</span> <span class="o">!=</span> <span class="n">cols_1</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">None</span>
     <span class="n">Ab</span> <span class="o">=</span> <span class="n">augmentMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> 
-    <span class="c1"># printInMatrixFormat(Ab,padding=4,truncating=3)</span>
-    <span class="c1"># print &#39;*&#39;*30</span>
+    <span class="n">printInMatrixFormat</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span><span class="n">padding</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">truncating</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">30</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols_1</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols_1</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Ab</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">c</span><span class="p">])</span><span class="o">&lt;</span><span class="nb">abs</span><span class="p">(</span><span class="n">Ab</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]):</span>
-                <span class="n">swapRows</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Ab</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">c</span><span class="p">])</span><span class="o">&lt;=</span><span class="n">epsilon</span><span class="p">:</span>  <span class="c1">#奇异矩阵</span>
-            <span class="c1"># print &#39;Ab[%d][%d]=&#39;%(c,c),Ab[c][c]</span>
+        <span class="n">maxLine</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">rows_1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Ab</span><span class="p">[</span><span class="n">maxLine</span><span class="p">][</span><span class="n">c</span><span class="p">])</span><span class="o">&lt;</span><span class="nb">abs</span><span class="p">(</span><span class="n">Ab</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]):</span>
+                <span class="n">maxLine</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Ab</span><span class="p">[</span><span class="n">maxLine</span><span class="p">][</span><span class="n">c</span><span class="p">])</span><span class="o">&lt;=</span><span class="n">epsilon</span><span class="p">:</span>  <span class="c1">#奇异矩阵</span>
             <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">swapRows</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">maxLine</span><span class="p">)</span>
         <span class="n">scaleRow</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">Ab</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">c</span><span class="p">])</span>  <span class="c1">#缩放系数至1</span>
-        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols_1</span><span class="p">):</span>
-            <span class="n">addScaledRow</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">Ab</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span><span class="o">/</span><span class="n">Ab</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">c</span><span class="p">])</span>  <span class="c1">#消除系数</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols_1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">addScaledRow</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">Ab</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">])</span>  <span class="c1">#消除系数</span>
         
-    <span class="c1"># print &#39;+&#39;*30</span>
-    <span class="c1"># printInMatrixFormat(Ab,padding=4,truncating=3)</span>
-    <span class="c1"># print &#39;+&#39;*30</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rows_1</span><span class="p">)):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-            <span class="n">scale</span> <span class="o">=</span> <span class="n">Ab</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span><span class="o">&gt;</span><span class="n">epsilon</span><span class="p">:</span>
-                <span class="n">addScaledRow</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="o">-</span><span class="n">scale</span><span class="p">)</span>
-        <span class="c1"># print &#39;-&#39;*30</span>
-        <span class="c1"># printInMatrixFormat(Ab,padding=4,truncating=3)</span>
-        <span class="c1"># print &#39;-&#39;*30</span>
-    <span class="n">ret</span> <span class="o">=</span>  <span class="n">matxRound</span><span class="p">([[</span><span class="n">Ab</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">cols_1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows_1</span><span class="p">)],</span><span class="n">decPts</span><span class="p">)</span>
-    <span class="c1"># print &#39;result:\n&#39;,ret</span>
-    <span class="k">return</span> <span class="n">ret</span>
+        <span class="k">print</span> <span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span>
+        <span class="n">printInMatrixFormat</span><span class="p">(</span><span class="n">Ab</span><span class="p">,</span><span class="n">padding</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">truncating</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span>
     
+    <span class="n">ret</span> <span class="o">=</span>  <span class="n">matxRound</span><span class="p">([[</span><span class="n">Ab</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">cols_1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows_1</span><span class="p">)],</span><span class="n">decPts</span><span class="p">)</span>
+    <span class="c1"># # print &#39;result:\n&#39;,ret</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+<span class="c1">#A = [[7,5, 3,-5],</span>
+<span class="c1">#    [ -4, 6, 2, -2],</span>
+<span class="c1">#    [-9, 4, -5,9],</span>
+<span class="c1">#    [ -9,-10,5, -4]]</span>
+<span class="c1">#b =[[1],[1],[1],[1]]</span>
+<span class="c1">#gj_Solve(A, b)  </span>
 </pre></div>
 
 </div>
@@ -12607,7 +12652,7 @@ $ Ab = \begin{bmatrix}
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># 运行以下代码测试你的 gj_Solve 函数</span>
@@ -12630,7 +12675,7 @@ $ Ab = \begin{bmatrix}
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>.
 ----------------------------------------------------------------------
-Ran 1 test in 2.798s
+Ran 1 test in 2.843s
 
 OK
 </pre>
